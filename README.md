@@ -73,7 +73,10 @@ Configure the cfg file (cfg/yolov4-tiny-custom.cfg):
 - Filters – (5 + num_classes)*3  (each YOLO block)
 - Anchors – these are also known as anchor boxes (each YOLO block)
 
-`./darknet detector train build/darknet/x64/data/obj.data cfg/yolov4-tiny-custom.cfg yolov4-tiny.conv.29 -map -dont_show`
+```
+ wget https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.conv.29
+./darknet detector train build/darknet/x64/data/obj.data cfg/yolov4-tiny-custom.cfg yolov4-tiny.conv.29 -map -dont_show
+```
 
 
 ## TFlite conversion
