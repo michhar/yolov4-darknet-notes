@@ -136,7 +136,6 @@ Check `predictions.jpg` for results.  You may SCP this file down to your machine
 
 ## Next steps with LVA
 
-1. <a href="" target="_blank">Create necessary resources</a>
-2. <a href="https://github.com/Azure/live-video-analytics/tree/master/utilities/rtspsim-live555" target="_blank">Create a movie simulator docker container with a test video</a>
-3. <a href="https://github.com/Azure/live-video-analytics/tree/master/utilities/video-analysis/yolov4-tflite-tiny" target="_blank">TensorFlow Lite Darknet Python AI container sample</a>
-4. <a href="https://github.com/Azure-Samples/live-video-analytics-iot-edge-csharp" target="_blank">Run sample app locally</a>
+1. <a href="https://github.com/Azure/live-video-analytics/tree/master/utilities/rtspsim-live555" target="_blank">Create a movie simulator docker container with a test video</a>
+2. <a href="https://github.com/Azure/live-video-analytics/tree/master/utilities/video-analysis/yolov4-tflite-tiny" target="_blank">TensorFlow Lite Darknet Python AI container sample</a>
+3. <a href="https://github.com/Azure-Samples/live-video-analytics-iot-edge-csharp" target="_blank">Run sample app locally</a>
