@@ -62,7 +62,7 @@ Check `predictions.jpg` for results.  You may SCP this file down to your machine
     - Zip the `data` folder (`zip -r data.zip data` on command line) and copy (`scp data.zip <username>@<public IP or DNS name>:~/darknet/build/darknet/x64/`) the data up to VM (may need to delete networking rule Cleanuptool-Deny-103 again if this gives a timeout error).
     - Log in to the DSVM with SSH
     - In the DSVM, unzip the compressed `data.zip` found, now, in the repo (`darknet`) folder `build/darknet/x64`.
-3.  Read through <a href="https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects" target="_blank">How to train on your own data</a>, specifically on updating the `.cfg` files.  We will be using the tiny archicture of YOLO v4.  The following summarizes the changes.
+3.  Read through <a href="https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects" target="_blank">How to train on your own data</a> from the Darknet repo, mainly on updating the `.cfg` file.  We will be using the tiny archicture of YOLO v4 so will calculate anchors and update the config accordingly (the `cfg/yolov4-tiny-custom.cfg`).  The following summarizes the changes for reference, but please refer to the Darknet repo for more information/clarification.
     - Calculate anchor boxes (especially important if you have very big or very small objects on average).  We use `-num_of_clusters 6` because of the tiny architecture which needs 3 anchor box sizes.
         ```
         ./darknet detector calc_anchors build/darknet/x64/data/obj.data -num_of_clusters 6 -width 416 -height 416`
