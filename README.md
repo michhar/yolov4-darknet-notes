@@ -4,6 +4,7 @@
 
 - SSH client or command line tool
 - Azure Subscription
+- Python 3 installed locally
 - Familiarity with Unix commands (`vim`, `nano`, etc.)
 
 ## Setup on Ubuntu (16.04) DSVM
@@ -24,9 +25,9 @@ Check `predictions.jpg` for results.  You may SCP this file down to your machine
 ## Train with Darknet
 
 1. Label some test data locally (aim for 500-1000 boxes drawn, noting that less will result is less accurate results)
-    - Install <a href="" target="_blank">VoTT</a> labeling tool to your local/dev machine (there should be instructions and executables for Windows, Macos, Linux)
+    - Install <a href="https://github.com/microsoft/VoTT" target="_blank">VoTT</a> labeling tool to your local/dev machine (there should be instructions and executables for Windows, Macos, Linux)
     - Label data and export as `json`
-    - Convert the `json` files to YOLO `.txt` files with a <a href="https://github.com/michhar/azure-and-ml-utils/blob/master/label_tools/vott2.0_to_yolo.py" target="_blank">python script found here</a> which should result in a `.txt` file per `.json`.  The `.txt` files are the YOLO format that `darknet` can use.
+    - Convert the `json` files to YOLO `.txt` files with a <a href="https://github.com/michhar/azure-and-ml-utils/blob/master/label_tools/vott2.0_to_yolo.py" target="_blank">python script found here</a> (run `python vott2.0_to_yolo.py --help` for usage) which should result in a `.txt` file per `.json`.  The `.txt` files are the YOLO format that `darknet` can use.
     - Structure the folder as follows.
     ```
     data/
@@ -85,22 +86,57 @@ Check `predictions.jpg` for results.  You may SCP this file down to your machine
 - Clone the following repo locally on your local/dev machine.
 
     `git clone https://github.com/hunglc007/tensorflow-yolov4-tflite.git`
+- Create a Python 3 environment with `venv` for this project locally (ensure using Python 3).
 
-- You can download your model and do the following on your local machine with `scp`.
+    ```
+    python -m venv env
+    ```
+- Activate your new Python environment from the command line (unix terminal or Windows `cmd.exe`)
+
+    - Unix systems (Macos, Linux):
+    ```
+    source env/bin/activate
+    ```
+
+    - Windows:
+    ```
+    env\Scripts\activate.bat
+    ```
+    - See <a href="https://docs.python.org/3/library/venv.html" target="_blank">venv documenation</a> for more information.
+- Install the Python requirements from the `requirements.txt` file in the `tensorflow-yolov4-tflite` folder.
+    ```
+    pip install -r requirements.txt
+    ```
+
+- Download your model to the `tensorflow-yolov4-tflite` by doing following on your local machine with `scp` or similar shell copy tool (on Windows you may use the PuTTy SCP program).
 
     `scp <username>@<public IP or DNS name>:~/darknet/backup/yolov4-tiny-custom_best.weights .`
 
-- You can use an editor like VSCode, now, on your local machine.  Change `coco.names` to be your classes (`obj.name`) in `core/config.py` and place `obj.names` in the `data/classes` folder.
-
+- You can use an editor like VSCode or any other text editor will work for the following.
+    - Change `coco.names` to `obj.names` in `core/config.py`
+    - Place `obj.names` file from your Darknet project in the `data/classes` folder.
 - Convert from Darknet to TensorFlow Lite (with quantization) with the two steps as follows.
-
     ```
     python save_model.py --weights yolov4-tiny-custom_best.weights --output ./checkpoints/yolov4-tiny-416-tflite2 --input_size 416 --model yolov4 --framework tflite --tiny
 
     python convert_tflite.py --weights ./checkpoints/yolov4-tiny-416-tflite2 --output ./checkpoints/yolov4-tiny-416-fp16.tflite --quantize_mode float16
     ```
 
-- Run the video test to check that everything is ok:
+- Run the video test locally to check that everything is ok:
 
     `python detectvideo.py --framework tflite --weights ./checkpoints/yolov4-tiny-416-fp16.tflite --size 416 --tiny --model yolov4 --video 0 --score 0.4`
 
+## Links/references
+
+1. <a href="https://github.com/michhar/darknet-azure-vm" target="_blank">Darknet Azure DSVM</a>
+2. <a href="https://github.com/microsoft/VoTT" target="_blank">Visual Object Tagging Tool (VoTT)</a>
+3. <a href="https://github.com/AlexeyAB/darknet" target="_blank">Darknet on GitHub</a>
+4. <a href="https://docs.python.org/3/library/venv.html" target="_blank">Python virtual environments</a>
+5. <a href="https://github.com/hunglc007/tensorflow-yolov4-tflite" target="_blank">Conversion of Darknet model to TFLite on GitHub</a>
+
+## Next steps with LVA
+
+1. <a href="" target="_blank">Create necessary resources</a>
+2. <a href="https://github.com/Azure/live-video-analytics/tree/master/utilities/rtspsim-live555" target="_blank">Create a movie simulator docker container with a test video</a>
+3. <a href="https://github.com/Azure/live-video-analytics/tree/master/utilities/video-analysis/yolov4-tflite-tiny" target="_blank">TensorFlow Lite Darknet Python AI container sample</a>
+4. <a href="https://github.com/Azure-Samples/live-video-analytics-iot-edge-csharp" target="_blank">Run sample app locally</a>
