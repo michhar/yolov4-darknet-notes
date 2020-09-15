@@ -67,13 +67,28 @@ Check `predictions.jpg` for results.  You may SCP this file down to your machine
         ```
         ./darknet detector calc_anchors build/darknet/x64/data/obj.data -num_of_clusters 6 -width 416 -height 416`
         ```
-    - Configure the cfg file (you will see a file called `cfg/yolov4-tiny-custom.cfg`).  Open the file with an editor like `vim` or `nano`.  Modify the following to your scenario.
-        - Batch size – the number of images feed into DNN as one unit before a weight update happens
-        - Iterations – number of passes over dataset (not full passes usually, just batch-sized passes); also called epochs
-        - Learning rate – if decrease this, then increase number of iterations (called max_batches in config file)
-        - Class number – change to your number of classes (each YOLO block)
-        - Filters – (5 + num_classes)*3  (each YOLO block)
-        - Anchors – these are also known as anchor boxes (each YOLO block)
+    - Configure the cfg file (you will see a file called `cfg/yolov4-tiny-custom.cfg`).  Open the file with an editor like `vim` or `nano`.  Modify the following to your scenario.  For example, this header (`net` block):
+        ```
+        [net]
+        # Testing
+        #batch=1
+        #subdivisions=1
+        # Training
+        batch=16
+        subdivisions=2
+        ...
+
+        learning_rate=0.00261
+        burn_in=1000
+        max_batches = 4000
+        policy=steps
+        steps=3200,3600
+        ...
+        ```
+        - Info for the `yolo` blocks (in each YOLO block or just before - there are two blocks in the tiny architecture):
+            - Class number – change to your number of classes (each YOLO block)
+            - Filters – (5 + num_classes)*3  (neural net layer before each YOLO block)
+            - Anchors – these are also known as anchor boxes (each YOLO block) - use the calculated anchors from the previous step.
 4. Train the model with the following two commands (one downloads the correct pretrained weights for transfer learning (the CNN layers).
     ```
      wget https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.conv.29
