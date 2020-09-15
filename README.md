@@ -23,7 +23,7 @@ Check `predictions.jpg` for results.  You may SCP this file down to your machine
 
 ## Train with Darknet
 
-1. Label some test data locally (aim for 500-1000 boxes drawn, noting that less with result is less accurate results)
+1. Label some test data locally (aim for 500-1000 boxes drawn, noting that less will result is less accurate results)
     - Install <a href="" target="_blank">VoTT</a> labeling tool to your local/dev machine (there should be instructions and executables for Windows, Macos, Linux)
     - Label data and export as `json`
     - Convert the `json` files to YOLO `.txt` files with a <a href="https://github.com/michhar/azure-and-ml-utils/blob/master/label_tools/vott2.0_to_yolo.py" target="_blank">python script found here</a> which should result in a `.txt` file per `.json`.  The `.txt` files are the YOLO format that `darknet` can use.
@@ -49,7 +49,13 @@ Check `predictions.jpg` for results.  You may SCP this file down to your machine
     names = build/darknet/x64/data/obj.names
     backup = backup/
     ```
-    - And `obj.names` contains the class names, one per line.
+    - Where `obj.names` contains the class names, one per line.
+    - Where `train.txt` and `valid.txt` should look as follows, for example.
+    ```
+    build/darknet/x64/data/img/image1.jpg
+    build/darknet/x64/data/img/image2.jpg
+    ...
+    ```
     - These instructions may also be found in <a href="https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects" target="_blank">How to train on your own data</a>.
 2. Upload data to the DSVM as follows.
     - Zip the `data` folder (`zip -r data.zip data` on command line) and copy (`scp data.zip <username>@<public IP or DNS name>:~/darknet/build/darknet/x64/`) the data up to VM (may need to delete networking rule Cleanuptool-Deny-103 again if this gives a timeout error).
@@ -76,26 +82,25 @@ Check `predictions.jpg` for results.  You may SCP this file down to your machine
 
 ## TFlite conversion
 
-You can download your model and do the following on your local machine.
+- Clone the following repo locally on your local/dev machine.
 
-Download model:
+    `git clone https://github.com/hunglc007/tensorflow-yolov4-tflite.git`
 
-`scp <username>@<public IP or DNS name>:~/darknet/backup/yolov4-tiny-custom_best.weights .`
+- You can download your model and do the following on your local machine with `scp`.
 
-Clone repo:
+    `scp <username>@<public IP or DNS name>:~/darknet/backup/yolov4-tiny-custom_best.weights .`
 
-`git clone https://github.com/hunglc007/tensorflow-yolov4-tflite.git`
+- You can use an editor like VSCode, now, on your local machine.  Change `coco.names` to be your classes (`obj.name`) in `core/config.py` and place `obj.names` in the `data/classes` folder.
 
-You can use an editor like VSCode, now, on your local machine.  Change `coco.names` to be your classes (`obj.name`) in `core/config.py` and place `obj.names` in the `data/classes` folder.
+- Convert from Darknet to TensorFlow Lite (with quantization) with the two steps as follows.
 
-Darknet to TensorFlow Lite (with quantization):
+    ```
+    python save_model.py --weights yolov4-tiny-custom_best.weights --output ./checkpoints/yolov4-tiny-416-tflite2 --input_size 416 --model yolov4 --framework tflite --tiny
 
-```
-python save_model.py --weights yolov4-tiny-custom_best.weights --output ./checkpoints/yolov4-tiny-416-tflite2 --input_size 416 --model yolov4 --framework tflite --tiny
-python convert_tflite.py --weights ./checkpoints/yolov4-tiny-416-tflite2 --output ./checkpoints/yolov4-tiny-416-fp16.tflite --quantize_mode float16
-```
+    python convert_tflite.py --weights ./checkpoints/yolov4-tiny-416-tflite2 --output ./checkpoints/yolov4-tiny-416-fp16.tflite --quantize_mode float16
+    ```
 
-Run the video test to check that everything is ok:
+- Run the video test to check that everything is ok:
 
-`python detectvideo.py --framework tflite --weights ./checkpoints/yolov4-tiny-416-fp16.tflite --size 416 --tiny --model yolov4 --video 0 --score 0.4`
+    `python detectvideo.py --framework tflite --weights ./checkpoints/yolov4-tiny-416-fp16.tflite --size 416 --tiny --model yolov4 --video 0 --score 0.4`
 
