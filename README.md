@@ -333,6 +333,15 @@ On Azure:
             }
         },
         ```
+    - Make the appropriate changes to the `appsettings.json`, a file that you may need to create if you haven't done the quickstarts.  It should look as follows and be located in the `src/cloud-to-device-console-app` folder.
+        ```
+        {
+            "IoThubConnectionString" : "connection_string_of_iothub",
+            "deviceId" : "name_of_your_edge_device_in_iot_hub",
+            "moduleId" : "lvaEdge"
+        }
+        ```
+        - The IoT Hub connection string may be found in the Azure Portal under your IoT Hub -> Settings -> Shared access policies blade -> iothubowner Policy -> Connection string—primary key
     - Build the app with `dotnet build` from the `src/cloud-to-device-console-app` folder.
     - Run the app with `dotnet run`
 
