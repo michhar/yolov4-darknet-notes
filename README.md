@@ -227,7 +227,41 @@ On Azure:
             }
             ```
             - This will ensure that LVA looks in the `rtspsim` module for the video rather than on the IoT Edge device.
-    - Make the appropriate changes to the `operations.json`
+    - Make the appropriate changes to the `operations.json`.  In the `"opName": "GraphInstanceSet"`, update the `rtspUrl` value to have your video file name (here `my_video.mkv`) and `inferencingUrl` with `"value": "http://yolov4/score"`, as in:
+        ```
+        {
+            "opName": "GraphInstanceSet",
+            "opParams": {
+                "name": "Sample-Graph-1",
+                "properties": {
+                    "topologyName" : "InferencingWithHttpExtension",
+                    "description": "Sample graph description",
+                    "parameters": [
+                        {
+                            "name": "rtspUrl",
+                            "value": "rtsp://rtspsim:554/media/my_video.mkv"
+                        },
+                        {
+                            "name": "rtspUserName",
+                            "value": "testuser"
+                        },
+                        {
+                            "name": "rtspPassword",
+                            "value": "testpassword"
+                        },
+                        {
+                            "name": "imageEncoding",
+                            "value": "jpeg"
+                        },
+                        {
+                            "name": "inferencingUrl",
+                            "value": "http://yolov4/score"
+                        }
+                    ]
+                }
+            }
+        },
+        ```
     - Make the appropriate changes to the `.env` file:
         - Update the `INPUT_VIDEO_FOLDER_ON_DEVICE` to be `/home/<your user name>`
         - Update the `CONTAINER_REGISTRY_USERNAME_myacr` and `CONTAINER_REGISTRY_PASSWORD_myacr`
