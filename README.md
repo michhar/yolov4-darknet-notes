@@ -158,14 +158,15 @@ On your development machine you will need the following.
 1. `git` command line or GUI tool
 2. `scp` command line tool (Windows use PuTTy's SCP program)
 3. A sample video in `.mkv` format that does not have audio
-4. Your `.tflite` model file, anchors and `obj.names` file
     - you can strip audio with FFmpeg (e.g. `ffmpeg -i input_file.mkv -c copy -an output_file.mkv`)
+4. Your `.tflite` model file, anchors and `obj.names` file
 5. Docker
 6. VSCode
 8. .NET Core 3.1 SDK
 
 On Azure:
-- Have gone through the <a href="https://docs.microsoft.com/en-us/azure/media-services/live-video-analytics-edge/get-started-detect-motion-emit-events-quickstart" target="_blank">this Live Video Analytics quickstart</a> to set up the necessary Azure Resources and learn how to use VSCode to see the results
+
+- Have gone through the <a href="https://docs.microsoft.com/en-us/azure/media-services/live-video-analytics-edge/get-started-detect-motion-emit-events-quickstart" target="_blank">this Live Video Analytics quickstart</a> and the <a href="https://github.com/Azure-Samples/live-video-analytics-iot-edge-csharp/tree/master/src/cloud-to-device-console-app" target="_blank">Live Video Analytics cloud to device sample console app</a> to set up the necessary Azure Resources and learn how to use VSCode to see the results with .NET app.
     - OR have the following Azure resources:
         - Azure Container Registry
         - Active Directory Service Principal
@@ -265,7 +266,6 @@ On Azure:
         },
         ```
     - Make the appropriate changes to the `.env` file:
-        - Update the `INPUT_VIDEO_FOLDER_ON_DEVICE` to be `/home/<your user name>`
         - Update the `CONTAINER_REGISTRY_USERNAME_myacr` and `CONTAINER_REGISTRY_PASSWORD_myacr`
     - Build the app with `dotnet build`
     - Run the app with `dotnet run`
