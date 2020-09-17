@@ -252,7 +252,7 @@ On Azure:
                 "status": "running",
                 "restartPolicy": "always",
                 "settings": {
-                  "image": "michharacr.azurecr.io/fish-rtsp-sim:v2",
+                  "image": "myacr.azurecr.io/my-rtsp-sim:latest",
                   "createOptions": {
 
                     "PortBindings": {
