@@ -149,6 +149,8 @@ Check `predictions.jpg` for results.  You may SCP this file down to your machine
 
 ## Set up for Azure Live Video Analytics on IoT Edge
 
+- If you wish to start from this point (do not have a trained model) please refer to the releases (v0.1) for the `.tflite` model, `obj.names` file, anchors (in notes) and sample video (`.mkv` file) to create your RTSP server for simulation:  https://github.com/michhar/yolov4-darknet-notes/releases/tag/v0.1.
+
 ### Prerequisites
 
 On your development machine you will need the following.
