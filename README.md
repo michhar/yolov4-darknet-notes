@@ -279,5 +279,3 @@ On Azure:
 7. <a href="https://github.com/Azure/live-video-analytics/tree/master/utilities/video-analysis/yolov4-tflite-tiny" target="_blank">TensorFlow Lite Darknet Python AI container sample for LVA</a>
 8. <a href="https://github.com/Azure-Samples/live-video-analytics-iot-edge-csharp" target="_blank">Run LVA sample app locally</a>
 
-## Next steps with LVA
-
