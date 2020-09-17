@@ -207,21 +207,66 @@ On Azure:
 - To run the sample app and view your inference results:
     - Clone the official Live Video Analytics CSharp sample app: `git clone https://github.com/Azure-Samples/live-video-analytics-iot-edge-csharp.git`
     - In the `src/edge` folder, update `yolov3.template.json` as follows.
-        - Rename to yolov4.template.json
-        - Change the yolov3 name to yolov4
-        - Point that yolov4 module to the correct image location in your ACR
-        - Point the rtspsim module to the correct image location in your ACR
-        - For `rtspsim` module add this to the `createOptions` section:
+        - Rename to `yolov4.template.json`
+        - Update (or ensure this is the case) the `runtime` at the beginning of the file looks like:
             ```
-            "PortBindings": {
-                "554/tcp": [
-                    {
-                    "HostPort": "5001"
+            "runtime": {
+                "type": "docker",
+                "settings": {
+                "minDockerVersion": "v1.25",
+                "loggingOptions": "",
+                    "registryCredentials": {
+                          "$CONTAINER_REGISTRY_USERNAME_myacr": {
+                                "username": "$CONTAINER_REGISTRY_USERNAME_myacr",
+                                "password": "$CONTAINER_REGISTRY_PASSWORD_myacr",
+                                "address": "$CONTAINER_REGISTRY_USERNAME_myacr.azurecr.io"
+                          }
                     }
-                ]
+                }
             }
             ```
-        - Also, in the `rtspsim` module `createOptions` _delete_ the folder bindings, so delete the section like:
+            - This section will ensure the deployment can find your custom `rtspsim` and `yolov4` images in your ACR.
+        - Change the `yolov3` name to `yolov4` as in the following modules section (the image is an example) pointing the yolov4 module to the correct image location in your ACR.
+            ```
+            "yolov4": {
+                "version": "1.0",
+                "type": "docker",
+                "status": "running",
+                "restartPolicy": "always",
+                "settings": {
+                  "image": "myacr.azurecr.io/my-awesome-custom-yolov4:latest",
+                      "createOptions": {}
+                }
+          }
+            ```
+        - Point the rtspsim module to the correct image location in your ACR as in the following
+            ```
+
+            ```
+        
+        - For `rtspsim` module add this to the `createOptions` section:
+            ```
+              "rtspsim": {
+                "version": "1.0",
+                "type": "docker",
+                "status": "running",
+                "restartPolicy": "always",
+                "settings": {
+                  "image": "michharacr.azurecr.io/fish-rtsp-sim:v2",
+                  "createOptions": {
+
+                    "PortBindings": {
+                        "554/tcp": [
+                            {
+                                "HostPort": "5001"
+                            }
+                        ]
+                     }
+                   }
+                 }
+               }
+            ```
+        - Also, in the `rtspsim` module `createOptions` make sure to _delete_ the folder bindings, so delete any section like:
             ```
             "HostConfig": {
               "Binds": [
