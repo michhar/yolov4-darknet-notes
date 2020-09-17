@@ -226,7 +226,7 @@ On Azure:
             }
             ```
             - This section will ensure the deployment can find your custom `rtspsim` and `yolov4` images in your ACR.
-        - Change the `yolov3` name to `yolov4` as in the following modules section (the image is an example) pointing the yolov4 module to the correct image location in your ACR.
+        - Change the `yolov3` name to `yolov4` as in the following modules section (the image location is an example) pointing the yolov4 module to the correct image location in your ACR.
             ```
             "yolov4": {
                 "version": "1.0",
@@ -239,12 +239,7 @@ On Azure:
                 }
           }
             ```
-        - Point the rtspsim module to the correct image location in your ACR as in the following
-            ```
-
-            ```
-        
-        - For `rtspsim` module add this to the `createOptions` section:
+        - For `rtspsim` module ensure the image points to your image in ACR (the image location is an example) and ensure the `createOptions` look as follows:
             ```
               "rtspsim": {
                 "version": "1.0",
