@@ -173,11 +173,7 @@ On Azure:
 
 ### Setup for the custom scenario and LVA
 
-1. Prepare the Azure IoT Edge VM (if not already done) and upload the `.mkv` file:
-    - Add public ip address to the VM
-    - Add a username and password to the VM
-    - `scp` (shell copy) video to VM in `/home/<your new user name>` folder
-2. To place the video on the VM
+1. Create a custom RTSP simulator with your video for inferencing with LVA
     - Clone the official Live Video Analytics GitHub repo:  `git clone https://github.com/Azure/live-video-analytics.git`
     - Open the repository folder in VSCode to make it easier to modify files
     - Go to the RTSP simulator instructions:  `cd utilities/rtspsim-live555/`
@@ -186,7 +182,7 @@ On Azure:
     - Copy your `.mkv` video file to the same folder as Dockerfile
     - Build the docker image according to the Readme
     - Push the docker image to your ACR according to the Readme
-3. To prepare the ML model wrapper code, from the base of the live-video-analytics folder:
+2. To prepare the ML model wrapper code, from the base of the live-video-analytics folder:
     - Go to the Docker container building instructions:  `cd utilities/video-analysis/yolov4-tflite-tiny`
     - Copy your `.tflite` model into the `app` folder
     - Perform the following changes to files for your custom scenario:
@@ -212,7 +208,7 @@ On Azure:
         - Change the yolov3 name to yolov4
         - Point that yolov4 module to the correct image location in your ACR
         - Point the rtspsim module to the correct image location in your ACR
-        - For `rtspsim` module add these to the create options section:
+        - For `rtspsim` module add this to the `createOptions` section:
             ```
             "PortBindings": {
                 "554/tcp": [
@@ -221,7 +217,16 @@ On Azure:
                     }
                 ]
             }
-            ```		
+            ```
+        - Also, in the `rtspsim` module `createOptions` _delete_ the folder bindings, so delete the section like:
+            ```
+            "HostConfig": {
+              "Binds": [
+                "$INPUT_VIDEO_FOLDER_ON_DEVICE:/live/mediaServer/media"
+              ]
+            }
+            ```
+            - This will ensure that LVA looks in the `rtspsim` module for the video rather than on the IoT Edge device.
     - Make the appropriate changes to the `operations.json`
     - Make the appropriate changes to the `.env` file:
         - Update the `INPUT_VIDEO_FOLDER_ON_DEVICE` to be `/home/<your user name>`
