@@ -206,7 +206,7 @@ On Azure:
 
 - To run the sample app and view your inference results:
     - Clone the official Live Video Analytics CSharp sample app: `git clone https://github.com/Azure-Samples/live-video-analytics-iot-edge-csharp.git`
-    - Update yolov3.template.json
+    - In the `src/edge` folder, update `yolov3.template.json` as follows.
         - Rename to yolov4.template.json
         - Change the yolov3 name to yolov4
         - Point that yolov4 module to the correct image location in your ACR
@@ -230,7 +230,17 @@ On Azure:
             }
             ```
             - This will ensure that LVA looks in the `rtspsim` module for the video rather than on the IoT Edge device.
-    - Make the appropriate changes to the `operations.json`.  In the `"opName": "GraphInstanceSet"`, update the `rtspUrl` value to have your video file name (here `my_video.mkv`) and `inferencingUrl` with `"value": "http://yolov4/score"`, as in:
+    - In the `src/cloud-to-device-console-app` folder, make the appropriate changes to the `operations.json`.
+        - In the `"opName": "GraphTopologySet"`, update the `topologyUrl` to be the http extension topology as follows.
+        ```
+        {
+            "opName": "GraphTopologySet",
+            "opParams": {
+                "topologyUrl": "https://raw.githubusercontent.com/Azure/live-video-analytics/master/MediaGraph/topologies/httpExtension/topology.json"
+            }
+        }
+        ```
+        - In the `"opName": "GraphInstanceSet"`, update the `rtspUrl` value to have your video file name (here `my_video.mkv`) and `inferencingUrl` with `"value": "http://yolov4/score"`, as in:
         ```
         {
             "opName": "GraphInstanceSet",
