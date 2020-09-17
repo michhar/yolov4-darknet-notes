@@ -270,6 +270,24 @@ On Azure:
             }
             ```
             - This will ensure that LVA looks in the `rtspsim` module for the video rather than on the IoT Edge device.
+    - Make the appropriate changes to the `.env` file (this should be located in the `src/edge` folder:
+        - Update the `CONTAINER_REGISTRY_USERNAME_myacr` and `CONTAINER_REGISTRY_PASSWORD_myacr`
+        - Recall the `.env` file (you can modify in VSCode) should have the following format (fill in the missing parts for your Azure resources):
+            ```
+            SUBSCRIPTION_ID=
+            RESOURCE_GROUP=
+            AMS_ACCOUNT=
+            IOTHUB_CONNECTION_STRING=
+            AAD_TENANT_ID=
+            AAD_SERVICE_PRINCIPAL_ID=
+            AAD_SERVICE_PRINCIPAL_SECRET=
+            INPUT_VIDEO_FOLDER_ON_DEVICE="/live/mediaServer/media"
+            OUTPUT_VIDEO_FOLDER_ON_DEVICE="/var/media"
+            APPDATA_FOLDER_ON_DEVICE="/var/lib/azuremediaservices"
+            CONTAINER_REGISTRY_USERNAME_myacr=
+            CONTAINER_REGISTRY_PASSWORD_myacr=
+            ```
+            - When you create the manifest template file in VSCode it will use these values to create the actual deployment manifest file.
     - In the `src/cloud-to-device-console-app` folder, make the appropriate changes to the `operations.json`.
         - In the `"opName": "GraphTopologySet"`, update the `topologyUrl` to be the http extension topology as follows.
         ```
@@ -315,9 +333,7 @@ On Azure:
             }
         },
         ```
-    - Make the appropriate changes to the `.env` file:
-        - Update the `CONTAINER_REGISTRY_USERNAME_myacr` and `CONTAINER_REGISTRY_PASSWORD_myacr`
-    - Build the app with `dotnet build`
+    - Build the app with `dotnet build` from the `src/cloud-to-device-console-app` folder.
     - Run the app with `dotnet run`
 
 ## Links/references
