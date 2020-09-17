@@ -1,13 +1,15 @@
-# Training a YOLO v4 Darknet Model on Azure and Converting to TFLite for Efficient Inferencing
+# Training a custom YOLO v4 Darknet Model on Azure and Running with Azure Live Video Analytics on IoT Edge
 
-## Prerequisites
+## Train a custom YOLO v4 model
+
+### Prerequisites
 
 - SSH client or command line tool
 - Azure Subscription
 - Python 3 installed locally
 - Familiarity with Unix commands (`vim`, `nano`, etc.)
 
-## Setup on Ubuntu (16.04) DSVM
+### Setup on Ubuntu (16.04) DSVM
 
 1. Set up an N-series DSVM with Darknet by following <a href="https://github.com/michhar/darknet-azure-vm" target="_blank">these instructions</a>. (ensure authentication with username and password).
 2. SSH in to Ubuntu DSVM:
@@ -22,7 +24,7 @@ wget https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/y
 
 Check `predictions.jpg` for results.  You may SCP this file down to your machine to view it or alternatively remote desktop into the machine with a program like X2Go.
 
-## Train with Darknet
+### Train with Darknet
 
 1. Label some test data locally (aim for 500-1000 boxes drawn, noting that less will result is less accurate results)
     - Install <a href="https://github.com/microsoft/VoTT" target="_blank">VoTT</a> labeling tool to your local/dev machine (there should be instructions and executables for Windows, Macos, Linux)
@@ -96,7 +98,7 @@ Check `predictions.jpg` for results.  You may SCP this file down to your machine
     ./darknet detector train build/darknet/x64/data/obj.data cfg/yolov4-tiny-custom.cfg yolov4-tiny.conv.29 -map -dont_show
     ```
 
-## TFlite conversion
+### TensorFlow Lite conversion for fast inferencing
 
 - Clone the following repo locally on your local/dev machine.
 
@@ -145,6 +147,88 @@ Check `predictions.jpg` for results.  You may SCP this file down to your machine
 
     `python detectvideo.py --framework tflite --weights ./checkpoints/yolov4-tiny-416-fp16.tflite --size 416 --tiny --model yolov4 --video 0 --score 0.4`
 
+## Set up for Azure Live Video Analytics on IoT Edge
+
+### Prerequisites
+
+On your development machine you will need the following.
+
+1. `git` command line or GUI tool
+2. `scp` command line tool (Windows use PuTTy's SCP program)
+3. A sample video in `.mkv` format that does not have audio
+4. Your `.tflite` model file, anchors and `obj.names` file
+    - you can strip audio with FFmpeg (e.g. `ffmpeg -i input_file.mkv -c copy -an output_file.mkv`)
+5. Docker
+6. VSCode
+8. .NET Core 3.1 SDK
+
+On Azure:
+- Have gone through the <a href="https://docs.microsoft.com/en-us/azure/media-services/live-video-analytics-edge/get-started-detect-motion-emit-events-quickstart" target="_blank">this Live Video Analytics quickstart</a> to set up the necessary Azure Resources and learn how to use VSCode to see the results
+    - OR have the following Azure resources:
+        - Azure Container Registry
+        - Active Directory Service Principal
+        - IoT Hub with an IoT Edge Device
+        - Media Services Account
+        - Azure IoT Edge VM (Ubuntu Linux)
+
+### Setup for the custom scenario and LVA
+
+1. Prepare the Azure IoT Edge VM (if not already done) and upload the `.mkv` file:
+    - Add public ip address to the VM
+    - Add a username and password to the VM
+    - `scp` (shell copy) video to VM in `/home/<your new user name>` folder
+2. To place the video on the VM
+    - Clone the official Live Video Analytics GitHub repo:  `git clone https://github.com/Azure/live-video-analytics.git`
+    - Open the repository folder in VSCode to make it easier to modify files
+    - Go to the RTSP simulator instructions:  `cd utilities/rtspsim-live555/`
+    - Replace line 21 with your `.mkv` file (can use ffmpeg to convert from other formats)
+        - e.g. `ADD ./your_video_name.mkv /live/mediaServer/media/`
+    - Copy your `.mkv` video file to the same folder as Dockerfile
+    - Build the docker image according to the Readme
+    - Push the docker image to your ACR according to the Readme
+3. To prepare the ML model wrapper code, from the base of the live-video-analytics folder:
+    - Go to the Docker container building instructions:  `cd utilities/video-analysis/yolov4-tflite-tiny`
+    - Copy your `.tflite` model into the `app` folder
+    - Perform the following changes to files for your custom scenario:
+        - In `app/core/config.py`:
+            - Update the `__C.YOLO.ANCHORS_TINY` line to be the same as training Darknet
+            - Update the `__C.YOLO.CLASSES` to be `./data/classes/obj.names`
+        - In `app/data/classes` folder:
+            - Add your file called `obj.names` (with your class names, one per line)
+        - In `app/yolov4-tf-tiny-app.py`
+            - Update line 31 to use the name of your model
+            - Update line 45 to be `obj.names` instead of `coco.names`
+        - In the `Dockerfile`
+        - We do not need to pull down the yolov4 base tflite model so delete line 19
+    - Follow instructions here to build, test, and push to ACR the docker image:
+        - https://github.com/Azure/live-video-analytics/tree/master/utilities/video-analysis/yolov4-tflite-tiny
+    
+## Running the LVA sample app
+
+- To run the sample app and view your inference results:
+    - Clone the official Live Video Analytics CSharp sample app: `git clone https://github.com/Azure-Samples/live-video-analytics-iot-edge-csharp.git`
+    - Update yolov3.template.json
+        - Rename to yolov4.template.json
+        - Change the yolov3 name to yolov4
+        - Point that yolov4 module to the correct image location in your ACR
+        - Point the rtspsim module to the correct image location in your ACR
+        - For `rtspsim` module add these to the create options section:
+            ```
+            "PortBindings": {
+                "554/tcp": [
+                    {
+                    "HostPort": "5001"
+                    }
+                ]
+            }
+            ```		
+    - Make the appropriate changes to the `operations.json`
+    - Make the appropriate changes to the `.env` file:
+        - Update the `INPUT_VIDEO_FOLDER_ON_DEVICE` to be `/home/<your user name>`
+        - Update the `CONTAINER_REGISTRY_USERNAME_myacr` and `CONTAINER_REGISTRY_PASSWORD_myacr`
+    - Build the app with `dotnet build`
+    - Run the app with `dotnet run`
+
 ## Links/references
 
 1. <a href="https://github.com/michhar/darknet-azure-vm" target="_blank">Darknet Azure DSVM</a>
@@ -152,9 +236,9 @@ Check `predictions.jpg` for results.  You may SCP this file down to your machine
 3. <a href="https://github.com/AlexeyAB/darknet" target="_blank">Darknet on GitHub</a>
 4. <a href="https://docs.python.org/3/library/venv.html" target="_blank">Python virtual environments</a>
 5. <a href="https://github.com/hunglc007/tensorflow-yolov4-tflite" target="_blank">Conversion of Darknet model to TFLite on GitHub</a>
+6. <a href="https://github.com/Azure/live-video-analytics/tree/master/utilities/rtspsim-live555" target="_blank">Create a movie simulator docker container with a test video for LVA</a>
+7. <a href="https://github.com/Azure/live-video-analytics/tree/master/utilities/video-analysis/yolov4-tflite-tiny" target="_blank">TensorFlow Lite Darknet Python AI container sample for LVA</a>
+8. <a href="https://github.com/Azure-Samples/live-video-analytics-iot-edge-csharp" target="_blank">Run LVA sample app locally</a>
 
 ## Next steps with LVA
 
-1. <a href="https://github.com/Azure/live-video-analytics/tree/master/utilities/rtspsim-live555" target="_blank">Create a movie simulator docker container with a test video</a>
-2. <a href="https://github.com/Azure/live-video-analytics/tree/master/utilities/video-analysis/yolov4-tflite-tiny" target="_blank">TensorFlow Lite Darknet Python AI container sample</a>
-3. <a href="https://github.com/Azure-Samples/live-video-analytics-iot-edge-csharp" target="_blank">Run sample app locally</a>
