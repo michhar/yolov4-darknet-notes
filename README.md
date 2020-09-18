@@ -157,8 +157,8 @@ On your development machine you will need the following.
 
 1. `git` command line or GUI tool
 2. `scp` command line tool (Windows use PuTTy's SCP program)
-3. A sample video in `.mkv` format that does not have audio
-    - you can strip audio with FFmpeg (e.g. `ffmpeg -i input_file.mkv -c copy -an output_file.mkv`)
+3. A sample video in `.mkv` format (only some audio formats are supported so you may see an error regarding audio format)
+    - you can strip audio, first, if only video matters with FFmpeg (e.g. `ffmpeg -i input_file.mkv -c copy -an output_file.mkv`)
 4. Your `.tflite` model file, anchors and `obj.names` file
 5. Docker
 6. VSCode with IoT Extension
@@ -176,9 +176,9 @@ On Azure:
         - Media Services Account
         - Azure IoT Edge VM (Ubuntu Linux)
 
-### Setup for the custom scenario and LVA
+### Create an RTSP simulator
 
-1. Create a custom RTSP simulator with your video for inferencing with LVA
+- Create a custom RTSP simulator with your video for inferencing with LVA with live555 media server
     - Clone the official Live Video Analytics GitHub repo:  `git clone https://github.com/Azure/live-video-analytics.git`
     - Open the repository folder in VSCode to make it easier to modify files
     - Go to the RTSP simulator instructions:  `cd utilities/rtspsim-live555/`
@@ -189,7 +189,10 @@ On Azure:
     - Push the docker image to your ACR according to the Readme
         - Login to ACR:  `az acr login --name myregistry`
         - Use docker to push: `docker push myregistry.azurecr.io/my-rtsp-sim:latest`
-2. To prepare the ML model wrapper code, from the base of the live-video-analytics folder:
+
+### Create the AI container for inferencing
+
+- To prepare the ML model wrapper code, from the base of the live-video-analytics folder:
     - Go to the Docker container building instructions:  `cd utilities/video-analysis/yolov4-tflite-tiny`
     - Copy your `.tflite` model into the `app` folder
     - Perform the following changes to files for your custom scenario:
