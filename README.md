@@ -162,7 +162,8 @@ On your development machine you will need the following.
 4. Your `.tflite` model file, anchors and `obj.names` file
 5. Docker
 6. VSCode
-8. .NET Core 3.1 SDK
+7. .NET Core 3.1 SDK
+8. Azure CLI
 
 On Azure:
 
@@ -185,6 +186,8 @@ On Azure:
     - Copy your `.mkv` video file to the same folder as Dockerfile
     - Build the docker image according to the Readme
     - Push the docker image to your ACR according to the Readme
+        - Login to ACR:  `az acr login --name myregistry`
+        - Use docker to push: `docker push myregistry.azurecr.io/my-rtsp-sim:latest`
 2. To prepare the ML model wrapper code, from the base of the live-video-analytics folder:
     - Go to the Docker container building instructions:  `cd utilities/video-analysis/yolov4-tflite-tiny`
     - Copy your `.tflite` model into the `app` folder
