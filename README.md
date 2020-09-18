@@ -1,4 +1,4 @@
-# Training a custom YOLO v4 Darknet Model on Azure and Running with Azure Live Video Analytics on IoT Edge
+# Cheatsheet for Training a Custom YOLO v4 Darknet Model on Azure and Running with Azure Live Video Analytics on IoT Edge
 
 ## Train a custom YOLO v4 model
 
@@ -100,13 +100,13 @@ Check `predictions.jpg` for results.  You may SCP this file down to your machine
 
 ### TensorFlow Lite conversion for fast inferencing
 
-- Clone the following repo locally on your local/dev machine.
+- Clone the following repo locally on your local/dev machine (this could also be done on the DSVM, but the video detection may be more difficult to view unless remote desktop is being used with DSVM).
 
     `git clone https://github.com/hunglc007/tensorflow-yolov4-tflite.git`
-- Create a Python 3 environment with `venv` for this project locally (ensure using Python 3).
+- Create a Python 3 environment with `venv` (virtual environments creation tool) for this project locally (ensure using Python 3).  If `python3` is not available check if `python` points to version 3 and if not, please install Python 3.
 
     ```
-    python -m venv env
+    python3 -m venv env
     ```
 - Activate your new Python environment from the command line (unix terminal or Windows `cmd.exe`)
 
