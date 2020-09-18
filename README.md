@@ -180,8 +180,8 @@ On Azure:
     - Clone the official Live Video Analytics GitHub repo:  `git clone https://github.com/Azure/live-video-analytics.git`
     - Open the repository folder in VSCode to make it easier to modify files
     - Go to the RTSP simulator instructions:  `cd utilities/rtspsim-live555/`
-    - Replace line 21 with your `.mkv` file (can use ffmpeg to convert from other formats)
-        - e.g. `ADD ./your_video_name.mkv /live/mediaServer/media/`
+    - Replace line 21 with your `.mkv` file (can use ffmpeg to convert from other formats) and if there is `ADD` change it to `COPY`
+        - e.g. `COPY ./your_video_name.mkv /live/mediaServer/media/`
     - Copy your `.mkv` video file to the same folder as Dockerfile
     - Build the docker image according to the Readme
     - Push the docker image to your ACR according to the Readme
