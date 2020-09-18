@@ -161,9 +161,10 @@ On your development machine you will need the following.
     - you can strip audio with FFmpeg (e.g. `ffmpeg -i input_file.mkv -c copy -an output_file.mkv`)
 4. Your `.tflite` model file, anchors and `obj.names` file
 5. Docker
-6. VSCode
+6. VSCode with IoT Extension
 7. .NET Core 3.1 SDK
 8. Azure CLI
+9. `curl` command line tool
 
 On Azure:
 
