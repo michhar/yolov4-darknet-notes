@@ -31,7 +31,7 @@
 
 1. Label some test data locally (aim for about 500-1000 bounding boxes drawn, noting that less will result is less accurate results for those classes)
     - Label data with VoTT and export as `json`
-    - Convert the `json` files to YOLO `.txt` files by running the following script (`vott2.0_to_yolo.py`).  Running this script should result in one `.txt` file per `.json` VoTT annotation file.  The `.txt` files are the YOLO format that `darknet` can use.  Run this conversion script as follows, for example.
+    - Convert the `json` files to YOLO `.txt` files by running the following script (`vott2.0_to_yolo.py`).  In this script, a change must be made.  Update line 13 (`LABELS = {'helmet': 0, 'no_helmet': 1}`) to reflect your classes.  Running this script should result in one `.txt` file per `.json` VoTT annotation file.  The `.txt` files are the YOLO format that `darknet` can use.  Run this conversion script as follows, for example.
     ```
     python vott2.0_to_yolo.py --annot-folder path_to_folder_with_json_files --out-folder new_folder_for_txt_annotations
     ```
@@ -160,27 +160,26 @@
 
 On your development machine you will need the following.
 
-1. `git` command line or GUI tool
-2. `scp` command line tool (Windows use PuTTy's SCP program)
-3. A sample video in `.mkv` format (only some audio formats are supported so you may see an error regarding audio format)
-    - you can strip audio, first, if only video matters with FFmpeg (e.g. `ffmpeg -i input_file.mkv -c copy -an output_file.mkv`)
-4. Your `.tflite` model file, anchors and `obj.names` file
-5. Docker
-6. VSCode with IoT Extension
-7. .NET Core 3.1 SDK
-8. Azure CLI
+1. `git` command line tool or client such as [GitHub Desktop](https://desktop.github.com)
+2. SCP client or command line tool - for Windows try [pscp.exe](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
+3. A sample video in `.mkv` format (only some audio formats are supported so you may see an error regarding audio format - you may wish to strip audio in this case for the simulator)
+4. Your `.tflite` model, anchors and `obj.names` files
+5. Docker - such as [Docker Desktop](https://www.docker.com/products/docker-desktop)
+6. [VSCode](https://code.visualstudio.com/download) and [Azure IoT Tools extension](https://marketplace.visualstudio.com/items?itemName=vsciot-vscode.azure-iot-tools) (search "Azure IoT Tools" in extensions withing VSCode)
+7. .NET Core 3.1 SDK - [download](https://dotnet.microsoft.com/download/dotnet-core/3.1)
+8. Azure CLI - [download and install](https://docs.microsoft.com/en-us/cli/azure/install-azure-cli)
 9. `curl` command line tool - [download curl](https://curl.haxx.se/download.html)
 
 
 On Azure:
 
 - Have gone through the <a href="https://docs.microsoft.com/en-us/azure/media-services/live-video-analytics-edge/get-started-detect-motion-emit-events-quickstart" target="_blank">this Live Video Analytics quickstart</a> and the <a href="https://github.com/Azure-Samples/live-video-analytics-iot-edge-csharp/tree/master/src/cloud-to-device-console-app" target="_blank">Live Video Analytics cloud to device sample console app</a> to set up the necessary Azure Resources and learn how to use VSCode to see the results with .NET app.
-    - OR have the following Azure resources:
-        - Azure Container Registry
-        - Active Directory Service Principal
-        - IoT Hub with an IoT Edge Device
-        - Media Services Account
-        - Azure IoT Edge VM (Ubuntu Linux)
+    - OR have the following Azure resources provisioned:
+        - [Azure Container Registry](https://docs.microsoft.com/en-us/azure/container-registry/)
+        - [Active Directory Service Principal](https://docs.microsoft.com/en-us/azure/active-directory/develop/howto-create-service-principal-portal)
+        - [IoT Hub](https://docs.microsoft.com/en-us/azure/iot-hub/iot-hub-create-through-portal) with an [IoT Edge Device](https://docs.microsoft.com/en-us/azure/iot-edge/about-iot-edge)
+        - [Media Services Account](https://docs.microsoft.com/en-us/azure/media-services/latest/create-account-howto?tabs=portal)
+        - [Azure IoT Edge VM (Ubuntu Linux)](https://docs.microsoft.com/en-us/azure/iot-edge/how-to-install-iot-edge-ubuntuvm)
 
 ### Create an RTSP simulator
 
@@ -188,8 +187,7 @@ On Azure:
     - Clone the official Live Video Analytics GitHub repo:  `git clone https://github.com/Azure/live-video-analytics.git`
     - Open the repository folder in VSCode to make it easier to modify files
     - Go to the RTSP simulator instructions:  `cd utilities/rtspsim-live555/`
-    - Replace line 21 with your `.mkv` file (can use ffmpeg to convert from other formats) and if there is `ADD` change it to `COPY`
-        - e.g. `COPY ./your_video_name.mkv /live/mediaServer/media/`
+    - Replace line 21 with your `.mkv` file (can use the ffmpeg command line tool to convert from other formats like .`mp4` to `.mkv`)
     - Copy your `.mkv` video file to the same folder as Dockerfile
     - Build the docker image according to the Readme
     - Push the docker image to your ACR according to the Readme
