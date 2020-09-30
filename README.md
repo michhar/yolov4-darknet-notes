@@ -4,33 +4,38 @@
 
 ### Prerequisites
 
-- SSH client or command line tool
-- Azure Subscription
-- Python 3 installed locally
-- Familiarity with Unix commands (`vim`, `nano`, etc.)
+- SSH client or command line tool - for Windows try [putty.exe](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
+- SCP client or command line tool - for Windows try [pscp.exe](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
+- Azure Subscription - a [Free Trial](https://azure.microsoft.com/free/) available for new customers.
+- Python 3 installed locally - e.g. [Anaconda Python](https://docs.anaconda.com/anaconda/install/)
+- Familiarity with Unix commands - e.g. `vim`, `nano`, `wget`, `curl`, etc.
+- Visual Object Tagging Tool - [VoTT](https://github.com/microsoft/VoTT)
 
-### Setup on Ubuntu (16.04) DSVM
+### Setup on Ubuntu (16.04) Data Science Virtual Machine and run test
 
-1. Set up an N-series DSVM with Darknet by following <a href="https://github.com/michhar/darknet-azure-vm" target="_blank">these instructions</a>. (ensure authentication with username and password).
-2. SSH in to Ubuntu DSVM:
-    - Must first delete an inbound port rule under “Networking” in the Azure Portal (delete Cleanuptool-Deny-103)
-    - SSH into machine w/ username and password (of if used ssh key, use that)
-3. Test Darknet by running the following on the command line:
-```
-wget https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.weights
-
-./darknet detector test ./cfg/coco.data ./cfg/yolov4-tiny.cfg ./yolov4-tiny.weights
-```
-
-Check `predictions.jpg` for results.  You may SCP this file down to your machine to view it or alternatively remote desktop into the machine with a program like X2Go.
+1. Set up an N-series Data Science Virtual Machine (DSVM) with [Darknet](https://github.com/AlexeyAB/darknet) by following <a href="https://github.com/michhar/darknet-azure-vm" target="_blank">these instructions</a>. (IMPORTANT:  ensure authentication with username and password).
+2. SSH into the Ubuntu DSVM w/ username and password (of if used ssh key, use that)
+    - If this is a corporate subscription, may need to delete an inbound port rule under “Networking” in the Azure Portal (delete Cleanuptool-Deny-103)
+3. Test the Darknet executable by running the following.
+    - Get the YOLO v4 tiny weights
+    ```
+    wget https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.weights
+    ```
+    - Run a test on a static image from repository.  Run the following command and then give the path to a test image (look in the `data` folder for sample images e.g. `data/giraffe.jpg`).  The `coco.data` gives the links to other necessary files.  The `yolov4-tiny.cfg` specifies the architecture and settings for tiny YOLO v4.
+    ```
+    ./darknet detector test ./cfg/coco.data ./cfg/yolov4-tiny.cfg ./yolov4-tiny.weights
+    ```
+    - Check `predictions.jpg` for the bounding boxes overlaid on the image.  You may "shell copy" (SCP) this file down to your machine to view it or alternatively remote desktop into the machine with a program like [X2Go](https://docs.microsoft.com/en-us/azure/machine-learning/data-science-virtual-machine/dsvm-ubuntu-intro#x2go).
 
 ### Train with Darknet
 
-1. Label some test data locally (aim for 500-1000 boxes drawn, noting that less will result is less accurate results)
-    - Install <a href="https://github.com/microsoft/VoTT" target="_blank">VoTT</a> labeling tool to your local/dev machine (there should be instructions and executables for Windows, Macos, Linux)
-    - Label data and export as `json`
-    - Convert the `json` files to YOLO `.txt` files with a <a href="https://github.com/michhar/azure-and-ml-utils/blob/master/label_tools/vott2.0_to_yolo.py" target="_blank">python script found here</a> (run `python vott2.0_to_yolo.py --help` for usage) which should result in a `.txt` file per `.json`.  The `.txt` files are the YOLO format that `darknet` can use.
-    - Structure the folder as follows.
+1. Label some test data locally (aim for about 500-1000 bounding boxes drawn, noting that less will result is less accurate results for those classes)
+    - Label data with VoTT and export as `json`
+    - Convert the `json` files to YOLO `.txt` files by running the following script (`vott2.0_to_yolo.py`).  Running this script should result in one `.txt` file per `.json` VoTT annotation file.  The `.txt` files are the YOLO format that `darknet` can use.  Run this conversion script as follows, for example.
+    ```
+    python vott2.0_to_yolo.py --annot-folder path_to_folder_with_json_files --out-folder new_folder_for_txt_annotations
+    ```
+    - Darknet will need a specific folder structure.  Structure the data folder as follows where in the `data/img` folder the image is placed along with the `.txt` annotation file.
     ```
     data/
         img/
@@ -44,7 +49,7 @@ Check `predictions.jpg` for results.  You may SCP this file down to your machine
         obj.data
         obj.names
     ```
-    - Where `obj.data`, a general file to direct `darknet` to the other data-related files and model folder, looks simliar to the following with necessary changes to `classes` for your scenario.
+    - `obj.data` is a general file to direct `darknet` to the other data-related files and model folder.  It looks simliar to the following with necessary changes to `classes` for your scenario.
     ```
     classes = 2
     train  = build/darknet/x64/data/train.txt
@@ -52,20 +57,20 @@ Check `predictions.jpg` for results.  You may SCP this file down to your machine
     names = build/darknet/x64/data/obj.names
     backup = backup/
     ```
-    - Where `obj.names` contains the class names, one per line.
-    - Where `train.txt` and `valid.txt` should look as follows, for example.
+    - `obj.names` contains the class names, one per line.
+    - `train.txt` and `valid.txt` should look as follows, for example.  Note, `train.txt` is the training images and is a different subset from the smaller list found in `valid.txt`.  As a general rule, 5-10% of the image paths should be placed in `valid.txt`.  These should be randomly distributed.
     ```
     build/darknet/x64/data/img/image1.jpg
-    build/darknet/x64/data/img/image2.jpg
+    build/darknet/x64/data/img/image5.jpg
     ...
     ```
     - These instructions may also be found in <a href="https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects" target="_blank">How to train on your own data</a>.
 2. Upload data to the DSVM as follows.
-    - Zip the `data` folder (`zip -r data.zip data` on command line) and copy (`scp data.zip <username>@<public IP or DNS name>:~/darknet/build/darknet/x64/`) the data up to VM (may need to delete networking rule Cleanuptool-Deny-103 again if this gives a timeout error).
+    - Zip the `data` folder (`zip -r data.zip data` if using the command line) and copy (`scp data.zip <username>@<public IP or DNS name>:~/darknet/build/darknet/x64/` - use `pscp.exe` on Windows) the data up to VM (may need to delete networking rule Cleanuptool-Deny-103 again if this gives a timeout error).  Note the `data.zip` is placed in the `darknet/build/darknet/x64` folder.  This is where `darknet` will look for the data.
     - Log in to the DSVM with SSH
-    - In the DSVM, unzip the compressed `data.zip` found, now, in the repo (`darknet`) folder `build/darknet/x64`.
+    - On the DSVM, unzip the compressed `data.zip` found, now, in the folder `darknet/build/darknet/x64`.
 3.  Read through <a href="https://github.com/AlexeyAB/darknet#how-to-train-to-detect-your-custom-objects" target="_blank">How to train on your own data</a> from the Darknet repo, mainly on updating the `.cfg` file.  We will be using the tiny archicture of YOLO v4 so will calculate anchors and update the config accordingly (the `cfg/yolov4-tiny-custom.cfg`).  The following summarizes the changes for reference, but please refer to the Darknet repo for more information/clarification.
-    - Calculate anchor boxes (especially important if you have very big or very small objects on average).  We use `-num_of_clusters 6` because of the tiny architecture which needs 3 anchor box sizes.  IMPORTANT:  make note of these anchors (darkent creates a file for you called `anchors.txt`) for the section on converting the model to TFLite (you will need them there).
+    - Calculate anchor boxes (especially important if you have very big or very small objects on average).  We use `-num_of_clusters 6` because of the tiny architecture configuration.  IMPORTANT:  make note of these anchors (darknet creates a file for you called `anchors.txt`) for the section on converting the model to TFLite so you will need them later on.
         ```
         ./darknet detector calc_anchors build/darknet/x64/data/obj.data -num_of_clusters 6 -width 416 -height 416`
         ```
@@ -91,7 +96,7 @@ Check `predictions.jpg` for results.  You may SCP this file down to your machine
             - Class number – change to your number of classes (each YOLO block)
             - Filters – (5 + num_classes)*3  (neural net layer before each YOLO block)
             - Anchors – these are also known as anchor boxes (each YOLO block) - use the calculated anchors from the previous step.
-4. Train the model with the following two commands (one downloads the correct pretrained weights for transfer learning (the CNN layers).
+4. Train the model with the following two commands.
     ```
      wget https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.conv.29
      
@@ -164,7 +169,8 @@ On your development machine you will need the following.
 6. VSCode with IoT Extension
 7. .NET Core 3.1 SDK
 8. Azure CLI
-9. `curl` command line tool
+9. `curl` command line tool - [download curl](https://curl.haxx.se/download.html)
+
 
 On Azure:
 
