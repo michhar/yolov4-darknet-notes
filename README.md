@@ -1,4 +1,11 @@
-# Cheatsheet for Training a Custom YOLO v4 Darknet Model on Azure and Running with Azure Live Video Analytics on IoT Edge
+# Training a Custom YOLO v4 Darknet Model on Azure and Running with Azure Live Video Analytics on IoT Edge
+
+## Table of contents
+
+1. [Train a custom YOLO v4 model](#train-a-custom-yolo-v4-model)
+2. [TensorFlow Lite conversion for fast inferencing](#tensorflow-lite-conversion-for-fast-inferencing)
+3. [Azure Live Video Analytics on IoT Edge](#azure-live-video-analytics-on-iot-edge)
+4. [Links/References](#linksreferences)
 
 ## Train a custom YOLO v4 model
 
@@ -11,9 +18,9 @@
 - Familiarity with Unix commands - e.g. `vim`, `nano`, `wget`, `curl`, etc.
 - Visual Object Tagging Tool - [VoTT](https://github.com/microsoft/VoTT)
 
-### Setup on Ubuntu (16.04) Data Science Virtual Machine and run test
+### Setup on Ubuntu (18.04) Virtual Machine in Azure and run test
 
-1. Set up an N-series Data Science Virtual Machine (DSVM) with [Darknet](https://github.com/AlexeyAB/darknet) by following <a href="https://github.com/michhar/darknet-azure-vm" target="_blank">these instructions</a>. (IMPORTANT:  ensure authentication with username and password).
+1. Set up an N-series Virtual Machine with [Darknet](https://github.com/AlexeyAB/darknet) by following <a href="https://github.com/michhar/darknet-azure-vm-ubuntu-18.04" target="_blank">these instructions</a>.
 2. SSH into the Ubuntu DSVM w/ username and password (of if used ssh key, use that)
     - If this is a corporate subscription, may need to delete an inbound port rule under “Networking” in the Azure Portal (delete Cleanuptool-Deny-103)
 3. Test the Darknet executable by running the following.
@@ -106,9 +113,9 @@
     ./darknet detector train build/darknet/x64/data/obj.data cfg/yolov4-tiny-custom.cfg yolov4-tiny.conv.29 -map -dont_show -clear
     ```
 
-### TensorFlow Lite conversion for fast inferencing
+## TensorFlow Lite conversion for fast inferencing
 
-- Clone the following repo locally on your local/dev machine (this could also be done on the DSVM, but the video detection may be more difficult to view unless remote desktop is being used with DSVM).
+- Clone the following repo locally on your local/dev machine or on the Azure VM (the video detection may be more difficult on VM to view with only SSH so using remote desktop is recommended like X2Go).
 
     `git clone https://github.com/hunglc007/tensorflow-yolov4-tflite.git`
 - Create a Python 3 environment with `venv` (virtual environments creation tool) for this project locally (ensure using Python 3).  If `python3` is not available check if `python` points to version 3 and if not, please install Python 3.
@@ -155,7 +162,7 @@
 
     `python detectvideo.py --framework tflite --weights ./checkpoints/yolov4-tiny-416-fp16.tflite --size 416 --tiny --model yolov4 --video 0 --score 0.4`
 
-## Set up for Azure Live Video Analytics on IoT Edge
+## Azure Live Video Analytics on IoT Edge
 
 - If you wish to start from this point (do not have a trained model) please refer to the releases (v0.1) for the `.tflite` model, `obj.names` file, anchors (in notes) and sample video (`.mkv` file) to create your RTSP server for simulation:  https://github.com/michhar/yolov4-darknet-notes/releases/tag/v0.1.
 
@@ -216,7 +223,7 @@ On Azure:
     - Follow instructions here to build, test, and push to ACR the docker image:
         - https://github.com/Azure/live-video-analytics/tree/master/utilities/video-analysis/yolov4-tflite-tiny
     
-## Running the LVA sample app
+### Running the LVA sample app
 
 - To run the sample app and view your inference results:
     - Clone the official Live Video Analytics CSharp sample app: `git clone https://github.com/Azure-Samples/live-video-analytics-iot-edge-csharp.git`
