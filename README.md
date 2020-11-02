@@ -97,10 +97,13 @@
             - Filters – (5 + num_classes)*3  (neural net layer before each YOLO block)
             - Anchors – these are also known as anchor boxes (each YOLO block) - use the calculated anchors from the previous step.
 4. Train the model with the following two commands.
+    - This will download the base model weights:
     ```
      wget https://github.com/AlexeyAB/darknet/releases/download/darknet_yolo_v4_pre/yolov4-tiny.conv.29
-     
-    ./darknet detector train build/darknet/x64/data/obj.data cfg/yolov4-tiny-custom.cfg yolov4-tiny.conv.29 -map -dont_show
+    ```
+    - This will run the training experiment (where `-clear` means it will start training from the base model just downloaded rather than already present weights in the `backup` folder;  the `backup` folder is where the weights will show up after training).
+    ```
+    ./darknet detector train build/darknet/x64/data/obj.data cfg/yolov4-tiny-custom.cfg yolov4-tiny.conv.29 -map -dont_show -clear
     ```
 
 ### TensorFlow Lite conversion for fast inferencing
