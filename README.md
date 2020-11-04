@@ -160,7 +160,7 @@
 
 - Run the video test locally to check that everything is ok:
 
-    `python detectvideo.py --framework tflite --weights ./checkpoints/yolov4-tiny-416-fp16.tflite --size 416 --tiny --model yolov4 --video 0 --score 0.4`
+    `python detectvideo.py --framework tflite --weights ./checkpoints/yolov4-tiny-416-fp16.tflite --size 416 --tiny --model yolov4 --video <name of your video file> --output <new name for output result video> --score 0.4`
 
 ## Azure Live Video Analytics on IoT Edge
 
