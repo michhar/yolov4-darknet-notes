@@ -14,13 +14,12 @@
 - SSH client or command line tool - for Windows try [putty.exe](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
 - SCP client or command line tool - for Windows try [pscp.exe](https://www.chiark.greenend.org.uk/~sgtatham/putty/latest.html)
 - Azure Subscription - a [Free Trial](https://azure.microsoft.com/free/) available for new customers.
-- Python 3 installed locally - e.g. [Anaconda Python](https://docs.anaconda.com/anaconda/install/)
 - Familiarity with Unix commands - e.g. `vim`, `nano`, `wget`, `curl`, etc.
 - Visual Object Tagging Tool - [VoTT](https://github.com/microsoft/VoTT)
 
 ### Setup on Ubuntu (18.04) Virtual Machine in Azure and run test
 
-1. Set up an N-series Virtual Machine with [Darknet](https://github.com/AlexeyAB/darknet) by following <a href="https://github.com/michhar/darknet-azure-vm-ubuntu-18.04" target="_blank">these instructions</a>.
+1. Set up an N-series Virtual Machine by using the [michhar/darknet-azure-vm-ubuntu-18.04](https://github.com/michhar/darknet-azure-vm-ubuntu-18.04) project VM setup.
 2. SSH into the Ubuntu DSVM w/ username and password (of if used ssh key, use that)
     - If this is a corporate subscription, may need to delete an inbound port rule under “Networking” in the Azure Portal (delete Cleanuptool-Deny-103)
 3. Test the Darknet executable by running the following.
@@ -115,34 +114,7 @@
 
 ## TensorFlow Lite conversion for fast inferencing
 
-- Clone the following repo locally on your local/dev machine or on the Azure VM (the video detection may be more difficult on VM to view with only SSH so using remote desktop is recommended like X2Go).
-
-    `git clone https://github.com/hunglc007/tensorflow-yolov4-tflite.git`
-- Create a Python 3 environment with `venv` (virtual environments creation tool) for this project locally (ensure using Python 3).  If `python3` is not available check if `python` points to version 3 and if not, please install Python 3.
-
-    ```
-    python3 -m venv env
-    ```
-- Activate your new Python environment from the command line (unix terminal or Windows `cmd.exe`)
-
-    - Unix systems (Macos, Linux):
-    ```
-    source env/bin/activate
-    ```
-
-    - Windows:
-    ```
-    env\Scripts\activate.bat
-    ```
-    - See <a href="https://docs.python.org/3/library/venv.html" target="_blank">venv documenation</a> for more information.
-- Install the Python requirements from the `requirements.txt` file in the `tensorflow-yolov4-tflite` folder.
-    ```
-    pip install -r requirements.txt
-    ```
-
-- Download your model to the `tensorflow-yolov4-tflite` by doing following on your local machine with `scp` or similar shell copy tool (on Windows you may use the PuTTy SCP program).
-
-    `scp <username>@<public IP or DNS name>:~/darknet/backup/yolov4-tiny-custom_best.weights .`
+- If using the [michhar/darknet-azure-vm-ubuntu-18.04](https://github.com/michhar/darknet-azure-vm-ubuntu-18.04) GitHub VM setup as instructed above, the [hunglc007/tensorflow-yolov4-tflite](https://github.com/hunglc007/tensorflow-yolov4-tflite) project will have already been cloned and the correct Python environment set up with TensorFlow 2.
 
 - You can use an editor like VSCode or any other text editor will work for the following.
     - Change `coco.names` to `obj.names` in `core/config.py`
@@ -151,16 +123,29 @@
     __C.YOLO.ANCHORS_TINY         = [ 81, 27,  28, 80,  58, 51,  76,100, 109, 83,  95,246]
     ```
     - Place `obj.names` file from your Darknet project in the `data/classes` folder.
-- Convert from Darknet to TensorFlow Lite (with quantization) with the two steps as follows.
+- Convert from Darknet to TensorFlow Lite (with quantization) with the two steps as follows.  Use the weights from your Darknet experiment (as found in the `~/darknet/backup/` folder).
+    - In the `tensorflow-yolov4-tflite` folder activate the Python environment with:
+    ```source env/bin/activate```
+    - Save the model to TensorFlow protobuf intermediate format.
     ```
     python save_model.py --weights yolov4-tiny-custom_best.weights --output ./checkpoints/yolov4-tiny-416-tflite2 --input_size 416 --model yolov4 --framework tflite --tiny
-
+    ```
+    - Convert the protobuf model weights to TFLite format with quantization.
+    ```
     python convert_tflite.py --weights ./checkpoints/yolov4-tiny-416-tflite2 --output ./checkpoints/yolov4-tiny-416-fp16.tflite --quantize_mode float16
     ```
 
-- Run the video test locally to check that everything is ok:
+- [Optional] Run the video test on remote desktop (recommended to use X2Go client for Windows or Mac with your VM user and IP address) to check that everything is ok.  Once X2Go has connected and you have a remote desktop instance running, open a terminal window ("terminal emulator" program).
 
-    `python detectvideo.py --framework tflite --weights ./checkpoints/yolov4-tiny-416-fp16.tflite --size 416 --tiny --model yolov4 --video <name of your video file> --output <new name for output result video> --score 0.4`
+    - Navigate to the project folder.
+    ```
+    cd tensorflow-yolov4-tflite
+    ```
+    - Run the video demo.
+    ```
+    python detectvideo.py --framework tflite --weights ./checkpoints/yolov4-tiny-416-fp16.tflite --size 416 --tiny --model yolov4 --video <name of your video file> --output <new name for output result video> --score 0.4
+    ```
+    - You can then navigate to the output video file and play it with VLC in the remote desktop environment or download the video to play locally.
 
 ## Azure Live Video Analytics on IoT Edge
 
